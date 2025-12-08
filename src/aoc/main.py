@@ -18,6 +18,16 @@ def load_input(day: int, input_type: str) -> list[str]:
     return [line.strip() for line in path.read_text().splitlines()]
 
 
+def load_input_no_strip(day: int, input_type: str) -> list[str]:
+    folder = INPUTS / f"input_{input_type}"
+    path = folder / f"day_{day:02}.txt"
+
+    if not path.exists():
+        raise FileNotFoundError(f"Missing input file: {path}")
+
+    return path.read_text().splitlines()
+
+
 def load_day(day: int):
     module_name = f"aoc.solutions.day_{day:02}"
     try:
@@ -31,10 +41,11 @@ def main():
     parser.add_argument("day", type=int, help="Day number (1-12)")
     parser.add_argument("part", type=int, choices=[1, 2], help="Part number")
     parser.add_argument("input", choices=["min", "full"], help="Input type")
+    parser.add_argument("--no-strip", action="store_true", help="Do not strip input lines")
 
     args = parser.parse_args()
 
-    lines = load_input(args.day, args.input)
+    lines = load_input(args.day, args.input) if not args.no_strip else load_input_no_strip(args.day, args.input)
     module = load_day(args.day)
 
     func = getattr(module, f"part_{args.part}", None)
